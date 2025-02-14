@@ -27,6 +27,9 @@ export function Nav() {
           <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary-600">
             Contact
           </Link>
+          <Link href="/VolunteeringMatchForm" className="text-sm font-medium text-muted-foreground hover:text-primary-600">
+            Volunteer Matching
+          </Link> {/* NEW TAB */}
           <Button asChild variant="ghost" className="text-sm font-medium">
             <Link href="/login">Log in</Link>
           </Button>
@@ -54,6 +57,9 @@ export function Nav() {
               <Link href="/contact" className="text-sm font-medium hover:text-primary-600">
                 Contact
               </Link>
+              <Link href="/VolunteeringMatchForm" className="text-sm font-medium hover:text-primary-600">
+                Volunteer Matching
+              </Link> {/* NEW TAB */}
               <Button asChild variant="ghost" className="justify-start">
                 <Link href="/login">Log in</Link>
               </Button>
@@ -67,4 +73,3 @@ export function Nav() {
     </header>
   )
 }
-
