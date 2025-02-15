@@ -1,14 +1,17 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Menu } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import Link from "next/link";
+import Image from "next/image";
+import { Menu } from "lucide-react";
+import { SignedIn, SignedOut, SignInButton, SignUpButton, useUser } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Nav() {
+  const { user } = useUser();
+
   return (
     <header className="fixed top-0 z-50 w-full border-b bg-white/80 backdrop-blur-sm">
       <nav className="container flex h-16 items-center justify-between">
+        {/* Logo */}
         <Link href="/" className="flex items-center space-x-3">
           <div className="relative h-8 w-8">
             <Image src="/placeholder.svg?height=32&width=32" alt="VolU Logo" fill className="object-contain" priority />
@@ -27,6 +30,7 @@ export function Nav() {
           <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary-600">
             Contact
           </Link>
+<<<<<<< HEAD
           <Link href="/VolunteeringMatchForm" className="text-sm font-medium text-muted-foreground hover:text-primary-600">
             Volunteer Matching
           </Link> {/* NEW TAB */}
@@ -36,6 +40,32 @@ export function Nav() {
           <Button asChild className="bg-primary-600 text-sm font-medium hover:bg-primary-700">
             <Link href="/register">Sign up</Link>
           </Button>
+=======
+
+          {/* Authentication Buttons */}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="ghost" className="text-sm font-medium">Log in</Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button className="bg-primary-600 text-sm font-medium hover:bg-primary-700">
+                Sign up
+              </Button>
+            </SignUpButton>
+          </SignedOut>
+
+          <SignedIn>
+            {user?.publicMetadata?.role === "admin" ? (
+              <Button asChild className="bg-primary-600 hover:bg-primary-700">
+                <Link href="/admin">Admin Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild className="bg-primary-600 hover:bg-primary-700">
+                <Link href="/volunteers">Volunteer Dashboard</Link>
+              </Button>
+            )}
+          </SignedIn>
+>>>>>>> 8c7dd4e (Save local changes before pulling updates)
         </div>
 
         {/* Mobile Navigation */}
@@ -57,6 +87,7 @@ export function Nav() {
               <Link href="/contact" className="text-sm font-medium hover:text-primary-600">
                 Contact
               </Link>
+<<<<<<< HEAD
               <Link href="/VolunteeringMatchForm" className="text-sm font-medium hover:text-primary-600">
                 Volunteer Matching
               </Link> {/* NEW TAB */}
@@ -66,10 +97,34 @@ export function Nav() {
               <Button asChild className="bg-primary-600 hover:bg-primary-700">
                 <Link href="/register">Sign up</Link>
               </Button>
+=======
+
+              {/* Mobile Authentication */}
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button variant="ghost" className="justify-start">Log in</Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button className="bg-primary-600 hover:bg-primary-700">Sign up</Button>
+                </SignUpButton>
+              </SignedOut>
+
+              <SignedIn>
+                {user?.publicMetadata?.role === "admin" ? (
+                  <Button asChild className="bg-primary-600 hover:bg-primary-700">
+                    <Link href="/admin">Admin Dashboard</Link>
+                  </Button>
+                ) : (
+                  <Button asChild className="bg-primary-600 hover:bg-primary-700">
+                    <Link href="/volunteers">Volunteer Dashboard</Link>
+                  </Button>
+                )}
+              </SignedIn>
+>>>>>>> 8c7dd4e (Save local changes before pulling updates)
             </div>
           </SheetContent>
         </Sheet>
       </nav>
     </header>
-  )
+  );
 }

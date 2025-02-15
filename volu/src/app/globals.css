@@ -45,3 +45,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.hc {
+  @apply min-h-screen flex items-center justify-center;
+}
