@@ -1,29 +1,3 @@
-// import {
-//   ClerkProvider,
-//   SignInButton,
-//   SignedIn,
-//   SignedOut,
-//   UserButton
-// } from '@clerk/nextjs'
-// import './globals.css'
-// export default function RootLayout({ children }: { children: React.ReactNode }) {
-//   return (
-//     <ClerkProvider>
-//       <html lang="en">
-//         <body>
-//           {children} {/* Ensures app content always renders */}
-//           <SignedOut>
-//             <SignInButton />
-//           </SignedOut>
-//           <SignedIn>
-//             <UserButton />
-//           </SignedIn>
-//         </body>
-//       </html>
-//     </ClerkProvider>
-//   );
-// }
-
 import { ClerkProvider } from "@clerk/nextjs"
 import { Inter } from "next/font/google"
 import { Toaster } from "sonner"

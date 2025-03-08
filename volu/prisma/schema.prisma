@@ -11,28 +11,348 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
-  relationMode = "prisma"
 }
 
 model User {
-  id              String  @id @default(cuid()) @map("_id")
-  clerkId         String? @unique
-  email           String  @unique
-  firstName       String?
-  lastName        String?
-  profileImageUrl String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // New profile fields
+  // Relations
+  profile              UserProfile?
+  skills               UserSkill[]
+  certifications       UserCertification[]
+  availability         UserAvailability?
+  preference           UserPreference?
+  settings             UserSettings?
+  causes               UserCause[]
+  createdEvents        Event[]                @relation("CreatedEvents") // Events created by the user
+  invitations          EventInvitation[]
+  ParticipationHistory ParticipationHistory[]
+
+  // 🔥 FIX: Replace implicit relation with explicit relation
+  eventVolunteers EventVolunteer[] @relation("UserEventVolunteers")
+}
+
+model UserProfile {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @unique @db.ObjectId
   fullName        String
+  phone           String?
   address1        String
   address2        String?
   city            String
   state           String
   zip             String
-  skills          String[] // Multi-select skills stored as an array
-  preferences     String?
-  availability    DateTime[] // Store availability as an array of DateTime
-
+  bio             String?
+  yearsExperience Int      @default(0)
+  experienceLevel Int      @default(1)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSkill {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserCertification {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String    @db.ObjectId
+  name       String
+  issuer     String?
+  issueDate  DateTime?
+  expiryDate DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserAvailability {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String   @unique @db.ObjectId
+  availableDays       String[] // ["monday", "tuesday", etc.]
+  availableTimeSlots  String[] // ["morning", "afternoon", "evening"]
+  specificDates       String[] // ISO date strings
+  blackoutDates       String[] // ISO date strings
+  minimumNoticePeriod String
+  flexibleSchedule    Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserPreference {
+  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId                  String   @unique @db.ObjectId
+  preferredDistance       String
+  frequency               String
+  remoteOpportunities     Boolean  @default(false)
+  communicationPreference String
+  additionalPreferences   String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  // Relations
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  causes UserCause[]
+}
+
+model UserSettings {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String   @unique @db.ObjectId
+  emailNotifications Boolean  @default(true)
+  emailFrequency     String   @default("weekly")
+  smsNotifications   Boolean  @default(false)
+  profileVisibility  Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Cause {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users  UserCause[]
+  events EventCause[]
+}
+
+model UserCause {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  causeId   String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cause        Cause           @relation(fields: [causeId], references: [id], onDelete: Cascade)
+  preference   UserPreference? @relation(fields: [preferenceId], references: [id])
+  preferenceId String?         @db.ObjectId
+
+  @@unique([userId, causeId])
+  @@index([userId])
+  @@index([causeId])
+}
+
+model Event {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  description       String
+  location          String
+  address           String
+  city              String
+  state             String
+  zip               String
+  isVirtual         Boolean  @default(false)
+  startDate         DateTime
+  endDate           DateTime
+  startTime         String?
+  endTime           String?
+  timezone          String   @default("UTC")
+  maxVolunteers     Int?
+  currentVolunteers Int      @default(0)
+  requiredSkills    String[]
+  eventType         String
+  urgency           String
+  status            String   @default("Active")
+  images            String[]
+  createdBy         String   @db.ObjectId
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  creator              User                   @relation("CreatedEvents", fields: [createdBy], references: [id])
+  causes               EventCause[]
+  skills               EventSkill[]
+  invitations          EventInvitation[]
+  ParticipationHistory ParticipationHistory[]
+
+  // 🔥 FIX: Replace implicit relation with explicit relation
+  volunteers EventVolunteer[] @relation("EventVolunteers")
+}
+
+/// 🔥 NEW Join Table for User <-> Event Many-to-Many Relationship
+model EventVolunteer {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  eventId   String   @db.ObjectId
+  role      String?
+  createdAt DateTime @default(now())
+
+  // ✅ Explicit relations to User and Event
+  user  User  @relation("UserEventVolunteers", fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation("EventVolunteers", fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId]) // Ensure unique user-event pairs
+  @@index([eventId])
+  @@index([userId])
+}
+
+model EventCause {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String   @db.ObjectId
+  causeId   String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  cause Cause @relation(fields: [causeId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, causeId])
+  @@index([eventId])
+  @@index([causeId])
+}
+
+model EventSkill {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String   @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+}
+
+model EventInvitation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId   String   @db.ObjectId
+  userId    String   @db.ObjectId
+  message   String?
+  status    String // "Pending", "Accepted", "Declined"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+model Notification {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String    @db.ObjectId
+  type         String // EVENT_INVITATION, EVENT_ASSIGNMENT, EVENT_UPDATE, etc.
+  title        String
+  message      String
+  priority     String // LOW, MEDIUM, HIGH, URGENT
+  channels     String[] // IN_APP, EMAIL, SMS
+  metadata     Json?
+  isRead       Boolean   @default(false)
+  readAt       DateTime?
+  status       String // SCHEDULED, SENT, DELIVERED, FAILED
+  scheduledFor DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model ScheduledTask {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  type         String // EVENT_REMINDER, etc.
+  scheduledFor DateTime
+  status       String // PENDING, COMPLETED, FAILED
+  data         Json
+  completedAt  DateTime?
+  error        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([scheduledFor, status])
+}
+
+// New model for tracking volunteer participation history
+model ParticipationHistory {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId
+  eventId       String    @db.ObjectId
+  status        String // "Registered", "Confirmed", "Attended", "No-Show", "Cancelled"
+  role          String? // Optional role the volunteer had at the event
+  hoursLogged   Float // Number of hours volunteered
+  hoursVerified Boolean   @default(false) // Whether the hours have been verified by an admin
+  feedback      String? // Optional feedback from the volunteer
+  adminNotes    String? // Optional notes from the admin
+  checkInTime   DateTime?
+  checkOutTime  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// New model for volunteer impact metrics
+model VolunteerImpact {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  totalHours      Float    @default(0)
+  eventsAttended  Int      @default(0)
+  skillsUtilized  String[]
+  causesSupported String[]
+  impactMetrics   Json? // Flexible structure for impact metrics
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// New model for volunteer certificates and achievements
+model VolunteerAchievement {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  type        String // "Certificate", "Badge", "Award", etc.
+  title       String
+  description String?
+  issuedAt    DateTime
+  expiresAt   DateTime?
+  imageUrl    String?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([type])
 }

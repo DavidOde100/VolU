@@ -9,6 +9,7 @@ import type React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { NotificationBell } from "@/components/notification-bell"
 
 interface NavItem {
   title: string
@@ -34,7 +35,7 @@ const adminNavItems: NavItem[] = [
   },
   {
     title: "Create Event",
-    href: "/admin/eventform",
+    href: "/admin/events/create",
     icon: PlusCircle,
   },
   {
@@ -71,7 +72,7 @@ const volunteerNavItems: NavItem[] = [
     icon: History,
   },
   {
-    title: "Profile",
+    title: "My Profile",
     href: "/volunteers/profile",
     icon: Settings,
   },
@@ -132,6 +133,7 @@ export function DashboardNav({ isAdmin = false }) {
           </SheetContent>
         </Sheet>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <NotificationBell />
           <UserButton
             afterSignOutUrl="/"
             appearance={{
@@ -145,3 +147,4 @@ export function DashboardNav({ isAdmin = false }) {
     </header>
   )
 }
+

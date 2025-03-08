@@ -1,16 +1,3 @@
-// "use client"
-// import { useUser } from "@clerk/nextjs";
-
-// export default function AdminDashboard() {
-//   const { user } = useUser();
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen">
-//       <h1>Welcome, Admin {user?.firstName}!</h1>
-//     </div>
-//   );
-// }
-
 "use client"
 
 import { useEffect } from "react"
@@ -26,7 +13,7 @@ import { useNotifications } from "@/contexts/NotificationContext"
 export default function AdminDashboard() {
   const { user } = useUser(); // ✅ Get user info
   const { isLoaded, isSignedIn } = useAuth(); // ✅ Get auth state
-  const { addNotification } = useNotifications();
+  const { addUINotification } = useNotifications();
 
   useEffect(() => {
     if (isLoaded && (!isSignedIn || user?.publicMetadata?.role !== "volunteer_admin")) {
@@ -37,12 +24,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     // Simulating new notifications
     const timer = setTimeout(() => {
-      addNotification("info", "New volunteer sign-up: Alice Johnson")
-      addNotification("success", 'Event "Community Cleanup" is fully staffed')
+      addUINotification("info", "New volunteer sign-up: Alice Johnson")
+      addUINotification("success", 'Event "Community Cleanup" is fully staffed')
     }, 2000)
 
     return () => clearTimeout(timer)
-  }, [addNotification])
+  }, [addUINotification])
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
@@ -56,7 +43,7 @@ export default function AdminDashboard() {
             </Link>
           </Button>
           <Button asChild>
-            <Link href="/admin/eventform">
+            <Link href="/admin/events/create">
               <PlusCircle className="mr-2 h-4 w-4" />
               Create New Event
             </Link>
