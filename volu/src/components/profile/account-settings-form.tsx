@@ -68,13 +68,18 @@ export function AccountSettingsForm({ user }: AccountSettingsFormProps) {
     setIsLoading(true)
     try {
       // ✅ Correct way to update user metadata in Clerk
-      await user.update({
-        publicMetadata: {
-          emailNotifications: data.emailNotifications,
-          emailFrequency: data.emailFrequency,
-          smsNotifications: data.smsNotifications,
-          profileVisibility: data.profileVisibility,
-        },
+      await fetch("/api/update-notification-preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          publicMetadata: {
+            emailNotifications: data.emailNotifications,
+            emailFrequency: data.emailFrequency,
+            smsNotifications: data.smsNotifications,
+            profileVisibility: data.profileVisibility,
+          },
+        }),
       })
 
       toast.success("Account settings updated successfully")

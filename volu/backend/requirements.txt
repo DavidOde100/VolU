@@ -1,0 +1,8 @@
+Flask
+python-dotenv
+flask-cors
+SQLAlchemy>=1.4
+flask_sqlalchemy>=3.0
+pytest
+coverage
+flask-testing

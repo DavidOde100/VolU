@@ -97,15 +97,22 @@ export function PreferencesForm({ user }: PreferencesFormProps) {
     setIsLoading(true)
     try {
       // ✅ Correct way to update user metadata in Clerk
-      await user.update({
-        publicMetadata: {
-          causes: data.causes,
-          preferredDistance: data.preferredDistance,
-          frequency: data.frequency,
-          remoteOpportunities: data.remoteOpportunities,
-          communicationPreference: data.communicationPreference,
-          additionalPreferences: data.additionalPreferences,
+      await fetch("/api/update-metadata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          userId: user.id,
+          metadata: {
+            causes: data.causes,
+            preferredDistance: data.preferredDistance,
+            frequency: data.frequency,
+            remoteOpportunities: data.remoteOpportunities,
+            communicationPreference: data.communicationPreference,
+            additionalPreferences: data.additionalPreferences,
+          },
+        }),
       })
       toast.success("Preferences updated successfully")
     } catch (error) {

@@ -78,20 +78,26 @@ export function PersonalInfoForm({ user }: PersonalInfoFormProps) {
       await userProfileService.updatePersonalInfo(user.id, personalInfo)
       
       // Also update Clerk metadata for client-side access
-      await user.update({
-        firstName: data.fullName.split(" ")[0],
-        lastName: data.fullName.split(" ").slice(1).join(" "),
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          fullName: data.fullName,
-          phone: data.phone,
-          address1: data.address1,
-          address2: data.address2,
-          city: data.city,
-          state: data.state,
-          zip: data.zip,
-          bio: data.bio,
+      await fetch("/api/update-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          userId: user.id,
+          firstName: data.fullName.split(" ")[0],
+          lastName: data.fullName.split(" ").slice(1).join(" "),
+          metadata: {
+            fullName: data.fullName,
+            phone: data.phone,
+            address1: data.address1,
+            address2: data.address2,
+            city: data.city,
+            state: data.state,
+            zip: data.zip,
+            bio: data.bio,
+          },
+        }),
       })
       
       toast.success("Personal information updated successfully")

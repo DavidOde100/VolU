@@ -48,14 +48,18 @@ export function NotificationSettingsForm({ user }: NotificationSettingsFormProps
     setIsLoading(true)
     try {
       // Update user metadata in Clerk
-      await user.update({
-        unsafeMetadata: {
-          ...user.unsafeMetadata,
-          emailNotifications: data.emailNotifications,
-          emailFrequency: data.emailFrequency,
-          smsNotifications: data.smsNotifications,
-          notificationTypes: data.notificationTypes,
-        },
+      await fetch("/api/update-notification-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          unsafeMetadata: {
+            emailNotifications: data.emailNotifications,
+            emailFrequency: data.emailFrequency,
+            smsNotifications: data.smsNotifications,
+            notificationTypes: data.notificationTypes,
+          },
+        }),
       })
       toast.success("Notification settings updated successfully")
     } catch (error) {

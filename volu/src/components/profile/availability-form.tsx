@@ -88,15 +88,20 @@ export function AvailabilityForm({ user }: AvailabilityFormProps) {
     setIsLoading(true)
     try {
       // ✅ Correct way to update user metadata in Clerk
-      await user.update({
-        publicMetadata: {
-          availableDays: data.availableDays,
-          availableTimeSlots: data.availableTimeSlots,
-          specificDates: data.specificDates?.map((date) => date.toISOString()),
-          blackoutDates: data.blackoutDates?.map((date) => date.toISOString()),
-          minimumNoticePeriod: data.minimumNoticePeriod,
-          flexibleSchedule: data.flexibleSchedule,
-        },
+      await fetch("/api/update-availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          publicMetadata: {
+            availableDays: data.availableDays,
+            availableTimeSlots: data.availableTimeSlots,
+            specificDates: data.specificDates?.map((d) => d.toISOString()),
+            blackoutDates: data.blackoutDates?.map((d) => d.toISOString()),
+            minimumNoticePeriod: data.minimumNoticePeriod,
+            flexibleSchedule: data.flexibleSchedule,
+          },
+        }),
       })
 
       toast.success("Availability updated successfully")
@@ -187,4 +192,3 @@ export function AvailabilityForm({ user }: AvailabilityFormProps) {
     </Form>
   )
 }
-

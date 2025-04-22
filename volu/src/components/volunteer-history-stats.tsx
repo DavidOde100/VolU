@@ -2,45 +2,47 @@
 
 import { useState } from "react"
 import { Clock, Calendar, Award, CheckCircle } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ParticipationStatus, type VolunteerStatistics } from "@/lib/api/participationService"
+import { ParticipationStatus, VolunteerStatistics } from "@/lib/api/participationService"
 
 interface VolunteerHistoryStatsProps {
   statistics: VolunteerStatistics
 }
 
-export function VolunteerHistoryStats({ statistics }: VolunteerHistoryStatsProps) {
-  const [chartView, setChartView] = useState("events")
+export const VolunteerHistoryStats: React.FC<VolunteerHistoryStatsProps> = ({ statistics }) => {
+  const [chartView, setChartView] = useState<"events" | "hours">("events")
 
-  // Format the data for the chart
-  const chartData = Object.entries(chartView === "events" ? statistics.eventsByMonth : statistics.hoursByMonth).map(
-    ([month, value]) => ({
-      month,
-      value,
-    }),
-  )
+  const chartData = Object.entries(
+    chartView === "events" ? statistics.eventsByMonth || {} : statistics.hoursByMonth || {}
+  ).map(([month, value]) => ({
+    month,
+    value,
+  }))
 
-  // Sort by month chronologically
   chartData.sort((a, b) => {
     const [aMonth, aYear] = a.month.split(" ")
     const [bMonth, bYear] = b.month.split(" ")
 
-    if (aYear !== bYear) {
-      return Number.parseInt(aYear) - Number.parseInt(bYear)
-    }
+    if (aYear !== bYear) return parseInt(aYear) - parseInt(bYear)
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     return months.indexOf(aMonth) - months.indexOf(bMonth)
   })
 
-  // Find the maximum value for scaling
   const maxValue = Math.max(...chartData.map((d) => d.value), 1)
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-6">
+      {/* Total Hours */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -50,33 +52,38 @@ export function VolunteerHistoryStats({ statistics }: VolunteerHistoryStatsProps
         </CardContent>
       </Card>
 
+      {/* Events Attended */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Events Attended</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{statistics.statusCounts[ParticipationStatus.ATTENDED] || 0}</div>
+          <div className="text-2xl font-bold">
+            {statistics.statusCounts?.[ParticipationStatus.ATTENDED] ?? 0}
+          </div>
           <p className="text-xs text-muted-foreground">Completed volunteer events</p>
         </CardContent>
       </Card>
 
+      {/* Upcoming Events */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {(statistics.statusCounts[ParticipationStatus.REGISTERED] || 0) +
-              (statistics.statusCounts[ParticipationStatus.CONFIRMED] || 0)}
+            {(statistics.statusCounts?.[ParticipationStatus.REGISTERED] ?? 0) +
+              (statistics.statusCounts?.[ParticipationStatus.CONFIRMED] ?? 0)}
           </div>
           <p className="text-xs text-muted-foreground">Registered for future events</p>
         </CardContent>
       </Card>
 
+      {/* Completion Rate */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
           <Award className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -86,12 +93,12 @@ export function VolunteerHistoryStats({ statistics }: VolunteerHistoryStatsProps
         </CardContent>
       </Card>
 
-      {/* Activity Chart */}
+      {/* Chart */}
       <Card className="col-span-full">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Volunteer Activity</CardTitle>
-            <Tabs defaultValue="events" value={chartView} onValueChange={setChartView}>
+            <Tabs value={chartView} onValueChange={(val) => setChartView(val as "events" | "hours")}>
               <TabsList>
                 <TabsTrigger value="events">Events</TabsTrigger>
                 <TabsTrigger value="hours">Hours</TabsTrigger>
@@ -108,9 +115,7 @@ export function VolunteerHistoryStats({ statistics }: VolunteerHistoryStatsProps
                   <div key={data.month} className="flex flex-1 flex-col items-center gap-2">
                     <div
                       className="w-full bg-primary rounded-t"
-                      style={{
-                        height: `${(data.value / maxValue) * 150}px`,
-                      }}
+                      style={{ height: `${(data.value / maxValue) * 150}px` }}
                     />
                     <div className="text-xs text-muted-foreground">{data.month}</div>
                   </div>
@@ -128,16 +133,13 @@ export function VolunteerHistoryStats({ statistics }: VolunteerHistoryStatsProps
   )
 }
 
-// Helper function to calculate completion rate
+// Completion rate helper
 function calculateCompletionRate(statistics: VolunteerStatistics): string {
-  const attended = statistics.statusCounts[ParticipationStatus.ATTENDED] || 0
+  const attended = statistics.statusCounts?.[ParticipationStatus.ATTENDED] ?? 0
   const total =
-    (statistics.statusCounts[ParticipationStatus.ATTENDED] || 0) +
-    (statistics.statusCounts[ParticipationStatus.NO_SHOW] || 0) +
-    (statistics.statusCounts[ParticipationStatus.CANCELLED] || 0)
+    attended +
+    (statistics.statusCounts?.[ParticipationStatus.NO_SHOW] ?? 0) +
+    (statistics.statusCounts?.[ParticipationStatus.CANCELLED] ?? 0)
 
-  if (total === 0) return "100"
-
-  return ((attended / total) * 100).toFixed(0)
+  return total === 0 ? "100" : ((attended / total) * 100).toFixed(0)
 }
-

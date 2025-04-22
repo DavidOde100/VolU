@@ -55,14 +55,10 @@ export const eventService = {
   },
 
   // Get event by ID
-  getEventById: async (eventId: string): Promise<Event> => {
-    try {
-      const response = await api.get(`/events/${eventId}`)
-      return response.data as Event
-    } catch (error) {
-      console.error(`Error fetching event with ID ${eventId}:`, error)
-      throw error
-    }
+  getEventById: async (id: string): Promise<Event> => {
+    const res = await fetch(`/api/events/${id}`)
+    if (!res.ok) throw new Error("Failed to fetch event")
+    return await res.json()
   },
 
   // Create new event
@@ -141,4 +137,3 @@ export const eventService = {
     }
   },
 }
-

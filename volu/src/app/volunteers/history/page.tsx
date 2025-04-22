@@ -57,6 +57,7 @@ export default function VolunteerHistoryPage() {
       const offset = (page - 1) * limit
 
       const result = await participationService.getMyHistory({
+        userId: user.id,
         limit,
         offset,
         status,
@@ -68,7 +69,7 @@ export default function VolunteerHistoryPage() {
       setTotalCount(result.totalCount)
 
       // Also fetch statistics
-      const stats = await participationService.getVolunteerStatistics()
+      const stats = await participationService.getVolunteerStatisticsForUser(user.id)
       setStatistics(stats)
     } catch (error) {
       console.error("Error fetching history:", error)
@@ -377,4 +378,3 @@ export default function VolunteerHistoryPage() {
     </div>
   )
 }
-

@@ -100,13 +100,20 @@ export function SkillsForm({ user }: SkillsFormProps) {
     setIsLoading(true)
     try {
       // ✅ Correct way to update user metadata in Clerk
-      await user.update({
-        publicMetadata: {
-          skills: data.skills,
-          yearsExperience: data.yearsExperience,
-          experienceLevel: data.experienceLevel,
-          certifications: data.certifications,
+      await fetch("/api/update-metadata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          userId: user.id,
+          metadata: {
+            skills: data.skills,
+            yearsExperience: data.yearsExperience,
+            experienceLevel: data.experienceLevel,
+            certifications: data.certifications,
+          },
+        }),
       })
       toast.success("Skills updated successfully")
     } catch (error) {

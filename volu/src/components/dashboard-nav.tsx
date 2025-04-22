@@ -62,7 +62,7 @@ const volunteerNavItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    title: "My Events",
+    title: "Events",
     href: "/volunteers/events",
     icon: Calendar,
   },

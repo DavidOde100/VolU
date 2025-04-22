@@ -1,0 +1,17 @@
+import { clerkClient } from "@clerk/clerk-sdk-node"
+import type { NextApiRequest, NextApiResponse } from "next"
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" })
+
+  const { userId, unsafeMetadata } = req.body
+  if (!userId || !unsafeMetadata) return res.status(400).json({ error: "Missing fields" })
+
+  try {
+    await clerkClient.users.updateUser(userId, { unsafeMetadata })
+    res.status(200).json({ message: "Notification settings updated" })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Failed to update metadata" })
+  }
+}

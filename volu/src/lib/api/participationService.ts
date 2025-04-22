@@ -89,6 +89,7 @@ export const participationService = {
   // Get participation history for the current user
   getMyHistory: async (
     options: {
+      userId: string // <-- REQUIRED!
       limit?: number
       offset?: number
       status?: ParticipationStatus
@@ -96,7 +97,7 @@ export const participationService = {
       endDate?: Date
       sortBy?: string
       sortOrder?: "asc" | "desc"
-    } = {},
+    }
   ): Promise<{
     history: ParticipationRecord[]
     totalCount: number
@@ -104,9 +105,10 @@ export const participationService = {
     offset: number
   }> => {
     try {
-      const { limit, offset, status, startDate, endDate, sortBy, sortOrder } = options
+      const { userId, limit, offset, status, startDate, endDate, sortBy, sortOrder } = options
       const params = new URLSearchParams()
-
+  
+      params.append("userId", userId) // <-- Always include this
       if (limit) params.append("limit", limit.toString())
       if (offset) params.append("offset", offset.toString())
       if (status) params.append("status", status)
@@ -114,8 +116,8 @@ export const participationService = {
       if (endDate) params.append("endDate", endDate.toISOString())
       if (sortBy) params.append("sortBy", sortBy)
       if (sortOrder) params.append("sortOrder", sortOrder)
-
-      const response = await api.get(`/participation/my-history?${params.toString()}`)
+  
+      const response = await api.get(`/participation/my?${params.toString()}`)
       return response.data as { history: ParticipationRecord[]; totalCount: number; limit: number; offset: number }
     } catch (error) {
       console.error("Error fetching participation history:", error)
@@ -334,20 +336,22 @@ export const participationService = {
     },
 
   // Get volunteer statistics
-  getVolunteerStatistics: async (): Promise<VolunteerStatistics> => {
-    try {
-      const response = await api.get("/participation/statistics")
-      return response.data as VolunteerStatistics
-    } catch (error) {
-      console.error("Error fetching volunteer statistics:", error)
-      throw error
+  getVolunteerStatistics: async (userId: string): Promise<VolunteerStatistics> => {
+    const res = await fetch(`http://localhost:3001/api/participation/statistics?userId=${userId}`, {
+      credentials: "include",
+    })
+    if (!res.ok) {
+      throw new Error("Failed to fetch statistics")
     }
+    return await res.json()
   },
 
   // Get volunteer statistics for a specific user (admin only)
   getVolunteerStatisticsForUser: async (userId: string): Promise<VolunteerStatistics> => {
     try {
-      const response = await api.get(`/participation/statistics/${userId}`)
+      const response = await api.get(`/participation/statistics`, {
+        params: { userId }
+      })
       return response.data as VolunteerStatistics
     } catch (error) {
       console.error("Error fetching volunteer statistics:", error)
@@ -355,4 +359,3 @@ export const participationService = {
     }
   },
 }
-
