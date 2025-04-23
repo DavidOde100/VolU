@@ -56,7 +56,7 @@ export const eventService = {
 
   // Get event by ID
   getEventById: async (id: string): Promise<Event> => {
-    const res = await fetch(`/api/events/${id}`)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`);
     if (!res.ok) throw new Error("Failed to fetch event")
     return await res.json()
   },

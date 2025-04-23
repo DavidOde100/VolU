@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { Calendar, Clock, MapPin, ArrowRight, CheckCircle, Users, AlertCircle, History, Bell } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -126,40 +127,53 @@ export default function VolunteerDashboard() {
         </Card>
       </div>
 
-      {/* Upcoming Events */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Upcoming Events</CardTitle>
-            <CardDescription>Your scheduled volunteer activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {upcomingEvents.map((event) => (
-                  <TableRow key={event.id}>
-                    <TableCell className="font-medium">{event.event?.name}</TableCell>
-                    <TableCell>{event.event?.startDate ? format(new Date(event.event.startDate), "PPP") : "N/A"}</TableCell>
-                    <TableCell>{event.event?.location ?? "TBA"}</TableCell>
-                    <TableCell>{event.status}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <Button variant="link" className="mt-4 p-0">
-              View all events
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </CardContent>
-        </Card>
+      <Card className="col-span-4">
+    <CardHeader>
+      <CardTitle>Upcoming Events</CardTitle>
+      <CardDescription>Your scheduled volunteer activities</CardDescription>
+    </CardHeader>
+    <CardContent>
+      {upcomingEvents.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No upcoming events scheduled.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Event</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {upcomingEvents.map((event) => (
+              <TableRow key={event.id}>
+                <TableCell className="font-medium">
+                  {event.event?.name ?? "Untitled Event"}
+                </TableCell>
+                <TableCell>
+                  {event.event?.startDate
+                    ? format(new Date(event.event.startDate), "PPP")
+                    : "TBD"}
+                </TableCell>
+                <TableCell>{event.event?.location ?? "TBA"}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{event.status ?? "Pending"}</Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      <Button variant="link" className="mt-4 p-0" asChild>
+        <a href="/volunteers/events">
+          View all events
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </a>
+      </Button>
+    </CardContent>
+  </Card>
 
         {/* Recent Activity */}
         <Card className="col-span-3">
@@ -184,8 +198,6 @@ export default function VolunteerDashboard() {
             </div>
           </CardContent>
         </Card>
-      </div>
-
       {/* Quick Actions */}
       <Card>
         <CardHeader>
