@@ -11,7 +11,10 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "VolU - Volunteer Management Platform",
   description: "Connect volunteers with meaningful opportunities",
-}
+  icons: {
+    icon: "/volu-logo.png", // Replace with your actual logo path
+  },
+};
 
 export default function RootLayout({
   children,

@@ -28,34 +28,34 @@ import {
 } from "@/components/ui/alert-dialog"
 
 // Map urgency to badge variant
-const getUrgencyBadge = (urgency: string) => {
+const getUrgencyBadge = (urgency?: string) => {
+  if (!urgency) return "default";
+
   switch (urgency.toLowerCase()) {
     case "low":
-      return "secondary"
+      return "secondary";
     case "medium":
-      return "outline"
+      return "outline";
     case "high":
-      return "default"
-    case "critical":
-      return "destructive"
+      return "destructive";
     default:
-      return "secondary"
+      return "default";
   }
 }
 
 // Map status to badge variant
-const getStatusBadge = (status: string) => {
+const getStatusBadge = (status?: string) => {
+  if (!status) return "default"; // fallback variant
+
   switch (status.toLowerCase()) {
     case "active":
-      return "default"
+      return "default";
     case "cancelled":
-      return "destructive"
+      return "destructive";
     case "completed":
-      return "secondary"
-    case "draft":
-      return "outline"
+      return "default"; // Adjusted to a valid variant
     default:
-      return "secondary"
+      return "secondary";
   }
 }
 
@@ -95,11 +95,10 @@ export default function EventsPage() {
 
     // Apply search filter
     if (searchTerm) {
-      result = result.filter(
-        (event) =>
-          event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.location.toLowerCase().includes(searchTerm.toLowerCase()),
+      result = result.filter((event) =>
+        (event.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (event.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (event.location?.toLowerCase() || "").includes(searchTerm.toLowerCase())
       )
     }
 
@@ -268,10 +267,14 @@ export default function EventsPage() {
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center">
-                          <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                          {format(new Date(event.startDate), "MMM d, yyyy")}
-                        </div>
+                      <div className="flex items-center">
+                        <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
+                        {event.startDate ? (
+                          format(new Date(event.startDate), "MMM d, yyyy")
+                        ) : (
+                          "Date unavailable"
+                        )}
+                      </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center">
