@@ -46,9 +46,9 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="flex min-h-[100vh] flex-col items-center justify-center space-y-10 bg-gradient-to-b from-primary-50 to-white px-4 pt-20 text-center lg:pt-32">
         <div className="container flex flex-col items-center space-y-8">
-          <div className="relative h-16 w-16 md:h-20 md:w-20">
+          <div className="relative h-auto w-auto md:h-auto md:w-auto">
             <Image
-              src="/placeholder.svg?height=80&width=80"
+              src="/Image (1).png"
               alt="VolU Hero Logo"
               fill
               className="object-contain"

@@ -13,11 +13,17 @@ export function Nav() {
       <nav className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-3">
-          <div className="relative h-8 w-8">
-            <Image src="/placeholder.svg?height=32&width=32" alt="VolU Logo" fill className="object-contain" priority />
-          </div>
-          <span className="text-xl font-bold text-primary-600">VolU</span>
-        </Link>
+      <div className="relative h-8 w-8">
+    <Image
+      src="/volu-logo.png"
+      alt="VolU Logo"
+      fill
+      className="object-contain"
+      priority
+    />
+  </div>
+  <span className="text-xl font-bold text-primary-600">VolU</span>
+</Link>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:space-x-4">
